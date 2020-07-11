@@ -1,4 +1,13 @@
 # Srujan's portfolio
 My professional portfolio using AWS serverless and reactJS
 
-#Architecture
+## Technologies used
+Brew
+Git
+SSH
+HTML
+CSS
+Font Awesome
+Google Fonts
+
+## Architecture
