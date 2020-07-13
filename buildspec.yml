@@ -6,7 +6,7 @@ phases:
       - echo nothing to do yet
 
 artifacts:
-  file:
+  files:
     index.html
     favicon.ico
     resume.pdf
