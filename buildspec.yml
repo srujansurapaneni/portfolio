@@ -7,8 +7,8 @@ phases:
 
 artifacts:
   files:
-    index.html
-    favicon.ico
-    resume.pdf
-    images/*
-    styles/*
+    - index.html
+    - favicon.ico
+    - resume.pdf
+    - images/*
+    - styles/*
