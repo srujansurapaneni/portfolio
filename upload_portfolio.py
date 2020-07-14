@@ -19,21 +19,31 @@ def lambda_handler(event, context):
     # TODO implement
 
     s3 = boto3.resource('s3')
-    code_bucket = s3.Bucket('codebuild-portfolio')
-    project_bucket = s3.Bucket('portfolio.semantiqlabs.com')
+    sns = boto3.resource('sns')
+    topic = sns.Topic('arn:aws:sns:us-east-1:092781121214:PortfolioDeploy')
 
-    ram_stored_zip = StringIO.StringIO()
+    try:
+        code_bucket = s3.Bucket('codebuild-portfolio')
+        project_bucket = s3.Bucket('portfolio.semantiqlabs.com')
 
-    code_bucket.download_fileobj('CodeBuildPortfolio',ram_stored_zip)
+        ram_stored_zip = StringIO.StringIO()
 
-    with zipfile.ZipFile(ram_stored_zip) as myzip:
-        for nm in myzip.namelist():
-            obj = myzip.open(nm)
-            project_bucket.upload_fileobj(obj,nm,
-              ExtraArgs={'ContentType':mimetypes.guess_type(nm)[0]})
-            project_bucket.Object(nm).Acl().put(ACL='public-read')
+        code_bucket.download_fileobj('CodeBuildPortfolio',ram_stored_zip)
+
+        with zipfile.ZipFile(ram_stored_zip) as myzip:
+            for nm in myzip.namelist():
+                obj = myzip.open(nm)
+                project_bucket.upload_fileobj(obj,nm,
+                  ExtraArgs={'ContentType':mimetypes.guess_type(nm)[0]})
+                project_bucket.Object(nm).Acl().put(ACL='public-read')
+        topic.publish(Subject='Portfolio deployed', Message='Porfolio changes deployed successfully')
+        print("deployed")
+
+    except:
+        topic.publish(Subject='Portfolio deployment failed', Message='Porfolio changes deployment failed, check the cloudwatch errors for more info')
+        raise
 
     return {
         'statusCode': 200,
-        'body': json.dumps('Hello from Lambda!')
+        'body': json.dumps('deployment complete')
     }
