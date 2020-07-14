@@ -1,3 +1,5 @@
+import json
+
 """
 Intent: extract the contents of the build bucket codebuild-portfolio and upload the contents to project bucket portfolio.semantiqlabs.com
 Steps:
@@ -13,17 +15,25 @@ import StringIO
 import zipfile
 import mimetypes
 
-s3 = boto3.resource('s3')
-code_bucket = s3.Bucket('codebuild-portfolio')
-project_bucket = s3.Bucket('portfolio.semantiqlabs.com')
+def lambda_handler(event, context):
+    # TODO implement
 
-ram_stored_zip = StringIO.StringIO()
+    s3 = boto3.resource('s3')
+    code_bucket = s3.Bucket('codebuild-portfolio')
+    project_bucket = s3.Bucket('portfolio.semantiqlabs.com')
 
-code_bucket.download_fileobj('CodeBuildPortfolio',ram_stored_zip)
+    ram_stored_zip = StringIO.StringIO()
 
-with zipfile.ZipFile(ram_stored_zip) as myzip:
-    for nm in myzip.namelist():
-        obj = myzip.open(nm)
-        project_bucket.upload_fileobj(obj,nm,
-          ExtraArgs={'ContentType':mimetypes.guess_type(nm)[0]})
-        project_bucket.Object(nm).Acl().put(ACL='public-read')
+    code_bucket.download_fileobj('CodeBuildPortfolio',ram_stored_zip)
+
+    with zipfile.ZipFile(ram_stored_zip) as myzip:
+        for nm in myzip.namelist():
+            obj = myzip.open(nm)
+            project_bucket.upload_fileobj(obj,nm,
+              ExtraArgs={'ContentType':mimetypes.guess_type(nm)[0]})
+            project_bucket.Object(nm).Acl().put(ACL='public-read')
+
+    return {
+        'statusCode': 200,
+        'body': json.dumps('Hello from Lambda!')
+    }
